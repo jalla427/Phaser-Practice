@@ -9,20 +9,20 @@ function updateGhosts()
         child.body.allowGravity = false;
         if(player.y > child.y && child.body.velocity.y < 80)
         {
-            child.body.velocity.y += (6 * Math.random());
+            child.body.velocity.y += (7 * Math.random());
         }
         if(player.y < child.y && child.body.velocity.y > -80)
         {
-            child.body.velocity.y -= (6 * Math.random());
+            child.body.velocity.y -= (7 * Math.random());
         }
         if(player.x > child.x && child.body.velocity.x < 90)
         {
-            child.body.velocity.x += (6 * Math.random());
+            child.body.velocity.x += (7 * Math.random());
             child.anims.play('ghost_right', false);
         }
         if(player.x < child.x && child.body.velocity.x > -90)
         {
-            child.body.velocity.x -= (6 * Math.random());
+            child.body.velocity.x -= (7 * Math.random());
             child.anims.play('ghost_left', false);
         }
     }); 
