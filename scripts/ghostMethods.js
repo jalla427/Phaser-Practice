@@ -18,12 +18,12 @@ function updateGhosts()
         if(player.x > child.x && child.body.velocity.x < 90)
         {
             child.body.velocity.x += (7 * Math.random());
-            child.anims.play('ghost_right', false);
+            child.anims.play('ghost_right', true);
         }
         if(player.x < child.x && child.body.velocity.x > -90)
         {
             child.body.velocity.x -= (7 * Math.random());
-            child.anims.play('ghost_left', false);
+            child.anims.play('ghost_left', true);
         }
     }); 
 }

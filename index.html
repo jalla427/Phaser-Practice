@@ -24,7 +24,8 @@
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 1000 }
+                gravity: { y: 1000 },
+                debug: false
             }
         }
     };
@@ -51,11 +52,12 @@
 
     function preload()
     {
+        //Load assets
         this.load.image('player', 'assets/player.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('tiles', 'assets/tilesheet.png');
         this.load.spritesheet('napper', 'assets/14x18Napper_SpriteSheet.png', { frameWidth: 14, frameHeight: 18 });
-        this.load.spritesheet('ghost', 'assets/32x32Ghost_FullSheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('ghost', 'assets/25x21Ghost_FullSheet.png', { frameWidth: 25, frameHeight: 21 });
         this.load.tilemapTiledJSON('map', 'assets/newmap.json');
         this.load.tilemapTiledJSON('map2', 'assets/newmap2.json');
     }
@@ -69,14 +71,14 @@
         backgroundImage = this.add.image(0, 0,'background').setOrigin(0, 0);
         backgroundImage.setScale(2.4, 2);
 
-        //Create the map
+        //Create the map out of two tilesets
         const map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('newtileset', 'tiles');
         
         const map2 = this.make.tilemap({ key: 'map2' });
         const tileset2 = map2.addTilesetImage('tileset1', 'tiles');
 
-        //Convert maps to solid platforms
+        //Convert map to solid platforms
         platforms = map.createStaticLayer('Tile Layer 1', tileset, 0, 0);
         platforms2 = map2.createStaticLayer('Tile Layer 1', tileset2, 384, 0);
         platforms.setCollisionByExclusion(-1, true);
@@ -86,9 +88,11 @@
         player = this.physics.add.sprite(20, 120, 'napper');
         player.setCollideWorldBounds(true);
 
-        //Create ghosts group
+        //Create ghost enemy group
         ghosts = this.physics.add.group({
-            name: 0
+            name: 0,
+            width: 14,
+            height: 18
         });
 
         //Player Animations
@@ -120,25 +124,25 @@
         //Ghost Animations
         this.anims.create({
             key: 'ghost_right',
-            frames: [ { key: 'ghost', frame: 5 } ],
-            frameRate: 20,
-            repeat: 1
+            frames: this.anims.generateFrameNumbers('ghost', { start: 0, end: 5 }),
+            frameRate: 10,
+            repeat: -1
         });
         this.anims.create({
             key: 'ghost_left',
-            frames: [ { key: 'ghost', frame: 33 } ],
-            frameRate: 20,
-            repeat: 1
+            frames: this.anims.generateFrameNumbers('ghost', { start: 6, end: 11 }),
+            frameRate: 10,
+            repeat: -1
         });
         this.anims.create({
             key: 'ghost_victory',
-            frames: this.anims.generateFrameNumbers('ghost', { start: 0, end: 3 }),
+            frames: this.anims.generateFrameNumbers('ghost', { start: 12, end: 17 }),
             frameRate: 10,
-            repeat: 3
+            repeat: 2
         });
         this.anims.create({
             key: 'ghost_vanish',
-            frames: this.anims.generateFrameNumbers('ghost', { start: 49, end: 56 }),
+            frames: this.anims.generateFrameNumbers('ghost', { start: 18, end: 23 }),
             frameRate: 10,
             repeat: 0
         });
@@ -150,10 +154,11 @@
         //Collide the player with the platforms
         platformColOne = this.physics.add.collider(player, platforms);
         platformColTwo = this.physics.add.collider(player, platforms2);
-        ghostCol = this.physics.add.collider(player, ghosts, playerCaught, null, this);
-
         platformColOne.active = true;
         platformColTwo.active = true;
+
+        //Call the playerCaught method when the player collides with a ghost enemy
+        ghostCol = this.physics.add.collider(player, ghosts, playerCaught, null, this);
         ghostCol.active = true;
 
         //Add score text boxes
@@ -180,6 +185,7 @@
             {
                 respawnTimer = 0;
                 gameover = false;
+                player.anims.play('player_idle', true);
                 resetPlayerPosition();
                 givePlayerControl(this);
                 ghostCol.active = true;
