@@ -11,11 +11,12 @@
 
     //Server Directory -> C:\Users\jra10\web-server\node_modules\http-server\bin\http-server
 
+    //Game presets
     const config = {
         type: Phaser.AUTO,
         parent: 'game',
-        width: 384,
-        height: 384,
+        width: 700,
+        height: 700,
         scene: {
             preload: preload,
             create: create,
@@ -30,9 +31,10 @@
         }
     };
 
-    
+    //Create phaser game
     const game = new Phaser.Game(config);
 
+    //Global Variables
     var backgroundImage;
     var player;
     var platforms;
@@ -46,6 +48,8 @@
     var gameover = false;
     var platformColOne;
     var platformColTwo;
+    var platformColThree;
+    var platformColFour;
     var ghostCol;
     var playerControlTaken = false;
 
@@ -53,36 +57,49 @@
     function preload()
     {
         //Load assets
-        this.load.image('player', 'assets/player.png');
         this.load.image('background', 'assets/background.png');
-        this.load.image('tiles', 'assets/tilesheet.png');
         this.load.spritesheet('napper', 'assets/14x18Napper_SpriteSheet.png', { frameWidth: 14, frameHeight: 18 });
         this.load.spritesheet('ghost', 'assets/25x21Ghost_FullSheet.png', { frameWidth: 25, frameHeight: 21 });
+        
+        //Tile maps
+        this.load.image('tiles', 'assets/tilesheet.png');
         this.load.tilemapTiledJSON('map', 'assets/newmap.json');
         this.load.tilemapTiledJSON('map2', 'assets/newmap2.json');
+        this.load.tilemapTiledJSON('map3', 'assets/newmap3.json');
+        this.load.tilemapTiledJSON('map4', 'assets/newmap4.json');
     }
 
     function create()
     {
         //Set world bounds
-        this.physics.world.bounds.setTo(0, 0, 768, 384);
+        this.physics.world.bounds.setTo(0, 0, 768, 768);
 
         //Create the background
         backgroundImage = this.add.image(0, 0,'background').setOrigin(0, 0);
-        backgroundImage.setScale(2.4, 2);
+        backgroundImage.setScale(2.4, 4);
 
-        //Create the map out of two tilesets
+        //Create the map out of loaded tilesets
         const map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('newtileset', 'tiles');
         
         const map2 = this.make.tilemap({ key: 'map2' });
         const tileset2 = map2.addTilesetImage('tileset1', 'tiles');
 
+        const map3 = this.make.tilemap({ key: 'map3' });
+        const tileset3 = map3.addTilesetImage('tileset1', 'tiles');
+
+        const map4 = this.make.tilemap({ key: 'map4' });
+        const tileset4 = map4.addTilesetImage('tileset1', 'tiles');
+
         //Convert map to solid platforms
         platforms = map.createStaticLayer('Tile Layer 1', tileset, 0, 0);
         platforms2 = map2.createStaticLayer('Tile Layer 1', tileset2, 384, 0);
+        platforms3 = map3.createStaticLayer('Tile Layer 1', tileset3, 0, 384);
+        platforms4 = map4.createStaticLayer('Tile Layer 1', tileset4, 384, 384);
         platforms.setCollisionByExclusion(-1, true);
         platforms2.setCollisionByExclusion(-1, true);
+        platforms3.setCollisionByExclusion(-1, true);
+        platforms4.setCollisionByExclusion(-1, true);
         
         //Create the player
         player = this.physics.add.sprite(20, 120, 'napper');
@@ -148,14 +165,18 @@
         });
 
         //Focus camera on player
-        this.cameras.main.setBounds(0, 0, 768, 0)
+        this.cameras.main.setBounds(0, 0, 768, 768)
         this.cameras.main.startFollow(player);
 
         //Collide the player with the platforms
         platformColOne = this.physics.add.collider(player, platforms);
         platformColTwo = this.physics.add.collider(player, platforms2);
+        platformColThree = this.physics.add.collider(player, platforms3);
+        platformColFour = this.physics.add.collider(player, platforms4);
         platformColOne.active = true;
         platformColTwo.active = true;
+        platformColThree.active = true;
+        platformColFour.active = true;
 
         //Call the playerCaught method when the player collides with a ghost enemy
         ghostCol = this.physics.add.collider(player, ghosts, playerCaught, null, this);
@@ -213,7 +234,7 @@
 
             if (cursors.up.isDown && player.body.blocked.down)
             {
-                player.setVelocityY(-330);
+                player.setVelocityY(-380);
             }
 
             //Update score
