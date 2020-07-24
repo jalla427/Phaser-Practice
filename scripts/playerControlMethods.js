@@ -1,6 +1,9 @@
+const { rootCertificates } = require("tls");
+
 function playerCaught()
 {
     ghostCol.active = false;
+    rotoCol.active = false;
     takePlayerControl(this);
     ghosts.children.iterate(function (child) {
         child.anims.play('ghost_victory', false);
@@ -17,6 +20,19 @@ function playerCaught()
                 child.destroy();
             }
         });
+    });
+    rotos.children.iterate(function (child) {
+        try
+        {
+            child.anims.play('roto_explode', false);
+            child.once('animationcomplete', ()=>{ 
+                child.destroy();
+            });
+        }
+        catch
+        {
+            child.destroy();
+        }
     });
     gameover = true;
 }

@@ -7,20 +7,20 @@ function updateGhosts()
     }
     ghosts.children.iterate(function (child) {
         child.body.allowGravity = false;
-        if(player.y > child.y && child.body.velocity.y < 70)
+        if(player.y > child.y && child.body.velocity.y < 60)
         {
             child.body.velocity.y += (6 * Math.random());
         }
-        if(player.y < child.y && child.body.velocity.y > -70)
+        if(player.y < child.y && child.body.velocity.y > -50)
         {
             child.body.velocity.y -= (6 * Math.random());
         }
-        if(player.x > child.x && child.body.velocity.x < 80)
+        if(player.x > child.x && child.body.velocity.x < 60)
         {
             child.body.velocity.x += (7 * Math.random());
             child.anims.play('ghost_right', true);
         }
-        if(player.x < child.x && child.body.velocity.x > -80)
+        if(player.x < child.x && child.body.velocity.x > -50)
         {
             child.body.velocity.x -= (7 * Math.random());
             child.anims.play('ghost_left', true);

@@ -4,6 +4,7 @@
     <script src="https:////cdn.jsdelivr.net/npm/phaser@3.17.0/dist/phaser.min.js"></script>
     <script src="scripts/playerControlMethods.js"></script>
     <script src="scripts/ghostMethods.js"></script>
+    <script src="scripts/rotoMethods.js"></script>
 </head>
 <body>
 
@@ -45,6 +46,7 @@
     var score = 0;
     var scoredelay = 0;
     var ghostIterateCheck = -1;
+    var rotoIterateCheck = -1
     var gameover = false;
     var platformColOne;
     var platformColTwo;
@@ -60,6 +62,7 @@
         this.load.image('background', 'assets/background.png');
         this.load.spritesheet('napper', 'assets/14x18Napper_SpriteSheet.png', { frameWidth: 14, frameHeight: 18 });
         this.load.spritesheet('ghost', 'assets/25x21Ghost_FullSheet.png', { frameWidth: 25, frameHeight: 21 });
+        this.load.spritesheet('roto', 'assets/16x16Roto_FullSheet.png', { frameWidth: 16, frameHeight: 16 });
         
         //Tile maps
         this.load.image('tiles', 'assets/tilesheet.png');
@@ -110,6 +113,13 @@
             name: 0,
             width: 14,
             height: 18
+        });
+
+        //Create ghost enemy group
+        rotos = this.physics.add.group({
+            name: 0,
+            width: 16,
+            height: 16
         });
 
         //Player Animations
@@ -164,6 +174,21 @@
             repeat: 0
         });
 
+        //Roto Animations
+        this.anims.create({
+            key: 'roto_move',
+            frames: this.anims.generateFrameNumbers('roto', { start: 0, end: 7 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'roto_explode',
+            frames: this.anims.generateFrameNumbers('roto', { start: 8, end: 15 }),
+            frameRate: 10,
+            repeat: 0
+        });
+
         //Focus camera on player
         this.cameras.main.setBounds(0, 0, 768, 768)
         this.cameras.main.startFollow(player);
@@ -178,9 +203,17 @@
         platformColThree.active = true;
         platformColFour.active = true;
 
-        //Call the playerCaught method when the player collides with a ghost enemy
-        ghostCol = this.physics.add.collider(player, ghosts, playerCaught, null, this);
+        //Collide rotos with the platforms
+        this.physics.add.collider(rotos, platforms);
+        this.physics.add.collider(rotos, platforms2);
+        this.physics.add.collider(rotos, platforms3);
+        this.physics.add.collider(rotos, platforms4);
+
+        //Call the playerCaught method when the player collides with an enemy
+        ghostCol = this.physics.add.collider(ghosts, player, playerCaught, null, this);
         ghostCol.active = true;
+        rotoCol = this.physics.add.collider(player, rotos, playerCaught, null, this);
+        rotoCol.active = true;
 
         //Add score text boxes
         scorebox = this.add.text(280, 32);
@@ -200,6 +233,8 @@
         if(gameover)
         {
             player.anims.play('player_loss', false);
+            ghostIterateCheck = -1;
+            rotoIterateCheck = -1;
             resetHighScoreCheck();
             respawnTimer++;
             if(respawnTimer >= 200)
@@ -210,7 +245,7 @@
                 resetPlayerPosition();
                 givePlayerControl(this);
                 ghostCol.active = true;
-                createNewGhost(768 * Math.random(), -10, 1);
+                rotoCol.active = true;
             }
         }
         else
@@ -242,6 +277,7 @@
 
             //Enemies
             updateGhosts();
+            updateRotos();
         }
     }
 
